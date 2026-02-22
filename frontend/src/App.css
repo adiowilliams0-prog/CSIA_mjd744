@@ -1,38 +1,94 @@
+/* 1. Page Layout & Centering Logic */
+/* This centers the entire login box perfectly in the middle of the screen */
 .App {
-  text-align: center;
+    display: flex;
+    justify-content: center; /* Horizontal centering */
+    align-items: center;     /* Vertical centering */
+    min-height: 100vh;       /* Full viewport height */
+    background-color: #f4f7f6; /* Professional light gray background */
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* 2. Authentication Container */
+/* Matches Prototype design with depth and professional spacing */
+.login-container {
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 400px;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Adds the 'card' depth effect */
+    text-align: center; /* Centers the header text */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Header Styling */
+.login-container h1 {
+    color: #333;
+    margin: 0 0 5px 0;
+    font-size: 2rem;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.login-container h2 {
+    color: #666;
+    font-weight: 400;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #007bff; /* Blue accent line from prototype */
+    padding-bottom: 10px;
 }
 
-.App-link {
-  color: #61dafb;
+/* 3. Form Group Styling */
+/* Keeps labels aligned left for readability while the box is centered */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left; 
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #444;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Critical: prevents padding from expanding width */
+    transition: border-color 0.3s ease;
+}
+
+/* Interactive focus state */
+.form-group input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* 4. Button Styling */
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff; /* Primary blue */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+button:active {
+    transform: translateY(1px); /* Subtle press effect */
 }
