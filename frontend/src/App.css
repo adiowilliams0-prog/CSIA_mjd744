@@ -1,94 +1,169 @@
-/* 1. Page Layout & Centering Logic */
-/* This centers the entire login box perfectly in the middle of the screen */
-.App {
-    display: flex;
-    justify-content: center; /* Horizontal centering */
-    align-items: center;     /* Vertical centering */
-    min-height: 100vh;       /* Full viewport height */
-    background-color: #f4f7f6; /* Professional light gray background */
+/* --- 1. Global Layout Structure --- */
+body, html {
     margin: 0;
+    padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    text-align: center;
+    background-color: #f4f7f6;
 }
 
-/* 2. Authentication Container */
-/* Matches Prototype design with depth and professional spacing */
+.App {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* The container for Sidebar + Page Content */
+.main-layout {
+    display: flex;
+    flex: 1; 
+    width: 100%;
+}
+
+.page-content {
+    flex: 1;
+    padding: 30px;
+    transition: all 0.3s ease;
+    background-color: #f4f7f6;
+    overflow-y: auto;
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* --- 2. Navbar Styling (Everyone) --- */
+.navbar {
+    height: 60px;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.brand-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 1.4rem;
+}
+
+.hamburger {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    width: auto;
+}
+
+/* --- 3. Sidebar Styling (Manager Only) --- */
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    transition: width 0.3s ease;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.collapsed {
+    width: 0px; 
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 20px 0;
+    margin: 0;
+}
+
+.sidebar li a {
+    display: block;
+    padding: 15px 25px;
+    color: #bdc3c7;
+    text-decoration: none;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+.sidebar li a:hover {
+    background-color: #34495e;
+    color: white;
+}
+
+/* --- 4. Authentication Centering Logic --- */
+/* This forces the login box to ignore everything else and center on screen */
+.login-page-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;         /* Critical: Breaks out of the App flex flow */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #f4f7f6;
+    z-index: 2000;           /* Sits on top of Navbar/Sidebar */
+}
+
 .login-container {
     background-color: #ffffff;
     width: 90%;
     max-width: 400px;
     padding: 40px;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Adds the 'card' depth effect */
-    text-align: center; /* Centers the header text */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
-/* Header Styling */
-.login-container h1 {
-    color: #333;
-    margin: 0 0 5px 0;
-    font-size: 2rem;
+/* --- 5. Roles & Badges --- */
+.badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
 }
 
-.login-container h2 {
-    color: #666;
-    font-weight: 400;
-    margin-bottom: 30px;
-    font-size: 1.1rem;
-    border-bottom: 2px solid #007bff; /* Blue accent line from prototype */
-    padding-bottom: 10px;
+.mgr { background-color: #ffd700; color: #000; }
+.det { background-color: #007bff; color: #fff; }
+
+/* --- 6. Form & Buttons --- */
+.form-group { margin-bottom: 20px; text-align: left; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+.form-group input { 
+    width: 100%; 
+    padding: 12px; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    box-sizing: border-box;
 }
 
-/* 3. Form Group Styling */
-/* Keeps labels aligned left for readability while the box is centered */
-.form-group {
-    margin-bottom: 20px;
-    text-align: left; 
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #444;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-    box-sizing: border-box; /* Critical: prevents padding from expanding width */
-    transition: border-color 0.3s ease;
-}
-
-/* Interactive focus state */
-.form-group input:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-}
-
-/* 4. Button Styling */
 button {
-    width: 100%;
     padding: 12px;
-    background-color: #007bff; /* Primary blue */
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 6px;
-    font-size: 1rem;
-    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+    font-weight: bold;
+    width: 100%; /* Default for login buttons */
 }
 
-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
+.logout-btn {
+    width: auto; /* Smaller width for navbar button */
+    background-color: #dc3545;
+    padding: 8px 15px;
 }
 
-button:active {
-    transform: translateY(1px); /* Subtle press effect */
+.logout-btn:hover {
+    background-color: #a71d2a;
 }

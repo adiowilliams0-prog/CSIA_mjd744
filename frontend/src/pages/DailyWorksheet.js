@@ -1,19 +1,12 @@
-import React from "react";
+import React from 'react';
 
-export default function DailyWorksheet() {
-  return (
-    <div style={styles.container}>
-      <h1>Daily Worksheet Test</h1>
-    </div>
-  );
-}
-
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
-    fontFamily: "Arial, sans-serif",
-  },
+const DailyWorksheet = () => {
+    return (
+        <div className="page-container">
+            <h1>Daily Worksheet</h1>
+            <p>Daily worksheet content coming soon...</p>
+        </div>
+    );
 };
+
+export default DailyWorksheet; // THIS LINE IS CRITICAL
