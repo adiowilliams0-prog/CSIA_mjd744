@@ -28,12 +28,12 @@ function App() {
   }, []);
 
   const isAuthenticated = !!localStorage.getItem('token');
-  const isManager = role === 'Manager';
+  // Case-insensitive check for Manager role
+  const isManager = role?.toLowerCase() === 'manager';
 
   return (
     <Router>
       <div className="App">
-        {/* Only show Navbar if logged in */}
         {isAuthenticated && (
           <Navbar 
             toggleSidebar={() => setIsCollapsed(!isCollapsed)} 
@@ -41,10 +41,6 @@ function App() {
           />
         )}
 
-        {/* CONDITIONAL LAYOUT: 
-          If not authenticated, show ONLY the Login page in its centering wrapper.
-          If authenticated, show the dashboard structure (Sidebar + Main).
-        */}
         {!isAuthenticated ? (
           <div className="login-page-wrapper">
             <Routes>
@@ -54,18 +50,14 @@ function App() {
           </div>
         ) : (
           <div className="main-layout">
-            {/* Sidebar only for Managers */}
             {isManager && <Sidebar isCollapsed={isCollapsed} />}
 
             <main className={`page-content ${!isManager ? 'full-width' : ''}`}>
               <Routes>
-                {/* Redirect home to correct dashboard */}
                 <Route path="/" element={<Navigate to={isManager ? "/dashboard" : "/worksheet"} />} />
                 
-                {/* Shared Route */}
                 <Route path="/worksheet" element={<DailyWorksheet />} />
 
-                {/* Protected Manager Routes */}
                 <Route 
                   path="/dashboard" 
                   element={isManager ? <ManagerDashboard /> : <Navigate to="/worksheet" />} 

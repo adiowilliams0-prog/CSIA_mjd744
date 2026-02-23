@@ -6,7 +6,7 @@ const Sidebar = ({ isCollapsed }) => {
     const role = getUserRole();
 
     // RBAC: If not a manager, don't show the sidebar at all
-    if (role !== 'Manager') return null;
+    if (role?.toLowerCase() !== 'manager') return null;
 
     return (
         <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>

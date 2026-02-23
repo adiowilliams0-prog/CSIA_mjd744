@@ -4,7 +4,7 @@ import { getUserRole } from '../utils/auth';
 
 const Navbar = ({ toggleSidebar, userName }) => {
     const role = getUserRole();
-    const isManager = role === 'Manager';
+    const isManager = role?.toLowerCase() === 'manager';
 
     return (
         <nav className="navbar">
