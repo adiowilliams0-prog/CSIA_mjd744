@@ -20,3 +20,34 @@ class User(db.Model):
     def check_password(self, password):
         """Pseudocode Implementation: 2. Password Verification"""
         return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
+
+    @staticmethod
+    def generate_username(first_name, last_name):
+        """
+        Username format:
+        first_initial + first_letter_of_last + last_letter_of_last + 3-digit number
+        Example: John Doe -> jde001
+        """
+
+        # Clean and normalize input
+        first_name = first_name.strip()
+        last_name = last_name.strip().replace(" ", "")
+
+        # Build base prefix
+        prefix = (
+            first_name[0] +
+            last_name[0] +
+            last_name[-1]
+        ).lower()
+
+        # Start numbering from 001
+        counter = 1
+
+        while True:
+            username = f"{prefix}{counter:03d}"  # formats as 001, 002, etc.
+
+            # Check if username already exists
+            if not User.query.filter_by(username=username).first():
+                return username
+
+            counter += 1

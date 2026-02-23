@@ -1,42 +1,115 @@
 from flask import Flask, request, jsonify
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from database import db, init_db
 from models import User
 from functools import wraps
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
+from services.staff_service import StaffService
 
 app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = 'super-secret-key' # Change this in production
+app.config['JWT_SECRET_KEY'] = 'super-secret-key'  # Change in production
 jwt = JWTManager(app)
 init_db(app)
 
-# Custom decorator to check for Manager role
+
+# -------------------------------
+# Robust Manager-Only Decorator
+# -------------------------------
 def manager_required(fn):
+    """
+    Decorator to enforce Manager-only access.
+    - Automatically requires JWT
+    - Gracefully handles invalid/missing tokens
+    - Returns 403 if user is not Manager
+    """
     @wraps(fn)
+    @jwt_required()  # Ensure JWT is verified first
     def wrapper(*args, **kwargs):
-        identity = get_jwt_identity()
-        if identity.get('role') != 'Manager':
+        identity = get_jwt_identity() or {}
+
+        # Handle nested "sub" or string sub if you ever store like that
+        if 'sub' in identity and isinstance(identity['sub'], dict):
+            role = identity['sub'].get('role')
+        else:
+            role = identity.get('role')
+
+        # Compare role case-insensitively
+        if not role or role.lower() != 'manager':
             return jsonify({"msg": "Managers only!"}), 403
+
         return fn(*args, **kwargs)
+
     return wrapper
 
+
+# -------------------------------
+# Auth Routes
+# -------------------------------
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    # Query using the 'username' field defined in your schema
     user = User.query.filter_by(username=data.get('username')).first()
 
-    # Validate credentials using the check_password method which references password_hash
     if user and user.check_password(data.get('password')):
-        # UPDATED: 'role' changed to 'user_role' to match your Class and SQL Dump
         access_token = create_access_token(identity={
-            'id': user.user_id, 
-            'role': user.user_role 
+            'id': user.user_id,
+            'role': user.user_role
         })
         return jsonify(access_token=access_token), 200
-    
+
     return jsonify({"msg": "Invalid credentials"}), 401
 
+
+# -------------------------------
+# Staff Management Routes (Manager Only)
+# -------------------------------
+@app.route('/api/staff', methods=['GET'])
+def get_staff():
+    """List all staff"""
+    staff = StaffService.list_staff()
+    return jsonify([{
+        "user_id": s.user_id,
+        "full_name": s.full_name,
+        "username": s.username,
+        "user_role": s.user_role,
+        "is_active": s.is_active
+    } for s in staff])
+
+
+@app.route('/api/staff/<int:user_id>/toggle', methods=['PATCH'])
+def toggle_staff_status(user_id):
+    """Activate/deactivate a staff member"""
+    user = StaffService.toggle_status(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    return jsonify({
+        "user_id": user.user_id,
+        "is_active": user.is_active
+    })
+
+
+@app.route('/api/staff/create', methods=['POST'])
+def create_staff():
+    """Create a new staff user"""
+    data = request.get_json()
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+    role = data.get("role")
+    password = data.get("password")
+
+    if not all([first_name, last_name, role, password]):
+        return jsonify({"msg": "All fields required"}), 400
+
+    new_user = StaffService.create_staff(first_name, last_name, role, password)
+    return jsonify({
+        "user_id": new_user.user_id,
+        "full_name": new_user.full_name,
+        "username": new_user.username,
+        "user_role": new_user.user_role,
+        "is_active": new_user.is_active
+    }), 201
+
+# -------------------------------
+# Run App
+# -------------------------------
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
