@@ -35,3 +35,33 @@ export const createStaff = async (staffData) => {
   });
   return res.ok ? res.json() : Promise.reject(await res.json());
 };
+
+/* -----------------------------
+   CLIENT PLAN APIs
+------------------------------ */
+
+export const getClientPlans = async () => {
+  const res = await authFetch('/api/plans');
+  return res.ok ? res.json() : Promise.reject(await res.json());
+};
+
+export const createClientPlan = async (planData) => {
+  const res = await authFetch('/api/plans/create', {
+    method: 'POST',
+    body: JSON.stringify(planData)
+  });
+  return res.ok ? res.json() : Promise.reject(await res.json());
+};
+
+export const addVehicleToPlan = async (planId, vehicleData) => {
+  const res = await authFetch(`/api/plans/${planId}/vehicles`, {
+    method: 'POST',
+    body: JSON.stringify(vehicleData)
+  });
+  return res.ok ? res.json() : Promise.reject(await res.json());
+};
+
+export const getVehicleCategories = async () => {
+  const res = await authFetch('/api/vehicle-categories');
+  return res.ok ? res.json() : Promise.reject(await res.json());
+};

@@ -4,6 +4,8 @@ from database import db, init_db
 from models import User
 from functools import wraps
 from services.staff_service import StaffService
+from services.client_plan_service import ClientPlanService, ClientPlanVehicleService, VehicleCategoryService
+import base64
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'super-secret-key'  # Change in production
@@ -107,6 +109,70 @@ def create_staff():
         "user_role": new_user.user_role,
         "is_active": new_user.is_active
     }), 201
+
+# -------------------------------
+# Client Plans Routes
+# -------------------------------
+
+@app.route('/api/plans', methods=['GET'])
+def get_plans():
+    plans = ClientPlanService.list_plans()
+    return jsonify([
+        {
+            "client_plan_id": p.client_plan_id,
+            "client_name": p.client_name,
+            "billing_cycle_type": p.billing_cycle_type,
+            "contact_email": p.contact_email,
+            "contact_phone": p.contact_phone,
+            "is_active": p.is_active,
+            "vehicle_count": len(ClientPlanVehicleService.list_vehicles(p.client_plan_id))
+        } for p in plans
+    ])
+
+@app.route('/api/plans/create', methods=['POST'])
+def create_plan():
+    data = request.get_json()
+
+    signature_base64 = data.get("signature")
+
+    if not signature_base64:
+        return jsonify({"error": "Signature required"}), 400
+
+    try:
+        signature_bytes = base64.b64decode(signature_base64)
+    except Exception:
+        return jsonify({"error": "Invalid signature format"}), 400
+
+    plan = ClientPlanService.create_plan(
+        client_name=data.get("client_name"),
+        billing_cycle=data.get("billing_cycle"),
+        email=data.get("email"),
+        phone=data.get("phone"),
+        signature_bytes=signature_bytes
+    )
+
+    return jsonify({"client_plan_id": plan.client_plan_id}), 201
+
+@app.route('/api/plans/<int:plan_id>/vehicles', methods=['POST'])
+def add_vehicle_to_plan(plan_id):
+    data = request.get_json()
+    link = ClientPlanVehicleService.add_vehicle(
+        plan_id=plan_id,
+        plate=data.get("plate"),
+        category_id=data.get("category_id"),
+        make_model=data.get("make_model")
+    )
+    return jsonify({"plan_id": link.client_plan_id, "vehicle_id": link.vehicle_id}), 201
+
+@app.route('/api/vehicle-categories', methods=['GET'])
+def get_vehicle_categories():
+    categories = VehicleCategoryService.list_categories()
+    return jsonify([
+        {
+            "vehicle_category_id": c.vehicle_category_id,
+            "category_name": c.category_name
+        } for c in categories
+    ])
 
 # -------------------------------
 # Run App
