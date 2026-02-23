@@ -4,6 +4,7 @@ from database import db, init_db
 from models import User
 from functools import wraps
 from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'super-secret-key' # Change this in production

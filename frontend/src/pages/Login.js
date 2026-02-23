@@ -1,35 +1,44 @@
 import React, { useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
+// Import the centralized login API function
+import { loginUser } from '../api/api';
+
 const Login = () => {
     const [form, setForm] = useState({ username: '', password: '' });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         try {
-            const res = await fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form)
-            });
+            // Call the centralized API function instead of using fetch directly
+            // This keeps all server communication inside api.js
+            const res = await loginUser(form);
 
             if (res.ok) {
                 const { access_token } = await res.json();
                 
-                // 1. Store the token
+                // 1. Store the JWT token in localStorage
+                // This allows authenticated requests later
                 localStorage.setItem('token', access_token);
 
-                // 2. Decode the token to get the role
+                // 2. Decode the token to extract the user's role
+                // Flask stores identity inside "sub"
                 const decoded = jwtDecode(access_token);
-                const role = decoded.sub.role; 
+                const role = decoded.sub.role;
 
-                // 3. Redirect to the appropriate home base
-                // Using window.location.href ensures a full refresh to update App.js state
-                window.location.href = role === 'Manager' ? '/dashboard' : '/worksheet';
+                // 3. Redirect based on role
+                // Full page reload ensures App.js re-evaluates authentication state
+                window.location.href =
+                    role === 'Manager' ? '/dashboard' : '/worksheet';
+
             } else {
+                // If backend returns 401 or 400
                 alert('Login failed. Please check your credentials.');
             }
+
         } catch (error) {
+            // Handles network/server errors
             console.error("Login error:", error);
             alert('Could not connect to the server.');
         }
@@ -48,7 +57,7 @@ const Login = () => {
                         type="text" 
                         placeholder="Enter Username" 
                         value={form.username}
-                        onChange={e => setForm({...form, username: e.target.value})} 
+                        onChange={e => setForm({ ...form, username: e.target.value })}
                         required
                         autoComplete="username"
                     />
@@ -61,13 +70,15 @@ const Login = () => {
                         type="password" 
                         placeholder="Enter Password" 
                         value={form.password}
-                        onChange={e => setForm({...form, password: e.target.value})} 
+                        onChange={e => setForm({ ...form, password: e.target.value })}
                         required
                         autoComplete="current-password"
                     />
                 </div>
 
-                <button type="submit" className="login-button">Login</button>
+                <button type="submit" className="login-button">
+                    Login
+                </button>
             </form>
         </div>
     );
