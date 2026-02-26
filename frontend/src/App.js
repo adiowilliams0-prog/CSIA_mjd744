@@ -12,7 +12,6 @@ import ManagerDashboard from './pages/ManagerDashboard';
 import DailyWorksheet from './pages/DailyWorksheet';
 import ClientPlans from './pages/ClientPlans';
 import StaffManagement from './pages/StaffManagement';
-import Reports from './pages/Reports';
 
 import './App.css';
 
@@ -69,10 +68,6 @@ function App() {
                 <Route 
                   path="/staff" 
                   element={isManager ? <StaffManagement /> : <Navigate to="/worksheet" />} 
-                />
-                <Route 
-                  path="/reports" 
-                  element={isManager ? <Reports /> : <Navigate to="/worksheet" />} 
                 />
 
                 <Route path="*" element={<Navigate to="/" />} />
