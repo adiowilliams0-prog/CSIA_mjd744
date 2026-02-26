@@ -11,34 +11,49 @@ const Login = () => {
         e.preventDefault();
 
         try {
-            // Call the centralized API function instead of using fetch directly
-            // This keeps all server communication inside api.js
+            // 1️⃣ Send login request through centralized API handler
             const res = await loginUser(form);
 
-            if (res.ok) {
-                const { access_token } = await res.json();
-                
-                // 1. Store the JWT token in localStorage
-                // This allows authenticated requests later
-                localStorage.setItem('token', access_token);
-
-                // 2. Decode the token to extract the user's role
-                // Flask stores identity inside "sub"
-                const decoded = jwtDecode(access_token);
-                const role = decoded.sub.role;
-
-                // 3. Redirect based on role
-                // Full page reload ensures App.js re-evaluates authentication state
-                window.location.href =
-                    role === 'Manager' ? '/dashboard' : '/worksheet';
-
-            } else {
-                // If backend returns 401 or 400
+            if (!res.ok) {
+                // Backend likely returned 401 (invalid credentials)
                 alert('Login failed. Please check your credentials.');
+                return;
             }
 
+            const { access_token } = await res.json();
+
+            if (!access_token) {
+                alert('Login failed. No token received.');
+                return;
+            }
+
+            // 2️⃣ Store JWT in localStorage
+            // This will be used automatically in authenticated API requests
+            localStorage.setItem('token', access_token);
+
+            // 3️⃣ Decode JWT to extract role
+            // IMPORTANT:
+            // Backend now stores:
+            // identity (sub) = string user_id
+            // additional_claims = { role: "Manager" | "Employee" }
+            const decoded = jwtDecode(access_token);
+
+            const role = decoded.role; // <-- UPDATED (was decoded.sub.role)
+
+            if (!role) {
+                console.warn("JWT does not contain role claim:", decoded);
+                alert('Login failed. Invalid token structure.');
+                localStorage.removeItem('token');
+                return;
+            }
+
+            // 4️⃣ Redirect based on role
+            // Full reload ensures App.js re-evaluates auth state
+            window.location.href =
+                role === 'Manager' ? '/dashboard' : '/worksheet';
+
         } catch (error) {
-            // Handles network/server errors
+            // Handles network errors or server downtime
             console.error("Login error:", error);
             alert('Could not connect to the server.');
         }

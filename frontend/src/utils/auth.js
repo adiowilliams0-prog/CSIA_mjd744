@@ -1,70 +1,89 @@
 /**
- * Decode JWT token and safely extract user role
- * Handles sub as object or string
- * Returns null if token is invalid or role cannot be determined
+ * ============================================================
+ * AUTH UTILITIES
+ * ------------------------------------------------------------
+ * JWT Structure (Backend):
+ * 
+ * {
+ *   "sub": "1",          // user_id as string
+ *   "role": "Manager",   // additional claim
+ *   "exp": 1234567890
+ * }
+ *
+ * - sub is now ALWAYS a string (user ID)
+ * - role is stored at top-level
+ * ============================================================
  */
-export const getUserRole = () => {
-  const token = localStorage.getItem('token');
-  if (!token) return null;
 
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const sub = payload.sub;
-
-    if (!sub) return null;
-
-    // If sub is already an object, just return role
-    if (typeof sub === 'object' && sub !== null) {
-      return sub.role || null;
-    }
-
-    // If sub is a string, parse it as JSON
-    if (typeof sub === 'string') {
-      const subObj = JSON.parse(sub);
-      return subObj.role || null;
-    }
-
-    return null;
-  } catch (e) {
-    console.warn("Failed to decode JWT:", e);
-    return null;
-  }
-};
 
 /**
- * Decode JWT token and safely extract user ID
- * Useful for future use if you need user ID from token
+ * Safely decode a JWT token
+ * Returns parsed payload or null if invalid
  */
-export const getUserId = () => {
+const decodeToken = () => {
   const token = localStorage.getItem('token');
   if (!token) return null;
 
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    const sub = payload.sub;
-
-    if (!sub) return null;
-
-    if (typeof sub === 'object' && sub !== null) {
-      return sub.id || null;
-    }
-
-    if (typeof sub === 'string') {
-      const subObj = JSON.parse(sub);
-      return subObj.id || null;
-    }
-
-    return null;
+    return payload;
   } catch (e) {
     console.warn("Failed to decode JWT:", e);
     return null;
   }
 };
+
+
+/**
+ * Get current user role from JWT
+ * Reads role from top-level claim
+ * Returns: "Manager", "Employee", or null
+ */
+export const getUserRole = () => {
+  const payload = decodeToken();
+  if (!payload) return null;
+
+  return payload.role || null;
+};
+
+
+/**
+ * Get current user ID from JWT
+ * sub is stored as string → convert to number if needed
+ * Returns: number or null
+ */
+export const getUserId = () => {
+  const payload = decodeToken();
+  if (!payload) return null;
+
+  return payload.sub ? parseInt(payload.sub) : null;
+};
+
+
+/**
+ * Check if current user is Manager
+ * Returns: true / false
+ */
+export const isManager = () => {
+  return getUserRole() === 'Manager';
+};
+
+
+/**
+ * Check if user is authenticated
+ * (Token existence only — does not verify expiration)
+ */
+export const isAuthenticated = () => {
+  return !!localStorage.getItem('token');
+};
+
 
 /**
  * Authenticated fetch wrapper
- * Automatically adds Bearer token and JSON headers
- * Returns a standard fetch Promise
+ * Automatically:
+ *  - Adds Authorization Bearer header
+ *  - Adds JSON Content-Type
+ *  - Handles expired/invalid token responses
  */
 export const authFetch = async (url, options = {}) => {
   const token = localStorage.getItem('token');
@@ -79,20 +98,23 @@ export const authFetch = async (url, options = {}) => {
   }
 
   try {
-    const res = await fetch(url, { ...options, headers });
-    return res;
-  } catch (err) {
-    console.error("Network or fetch error:", err);
-    throw err;
+    const response = await fetch(url, {
+      ...options,
+      headers
+    });
+
+    // Optional: Auto-logout on invalid/expired token
+    if (response.status === 401 || response.status === 422) {
+      console.warn("Authentication error. Logging out.");
+      localStorage.removeItem('token');
+      window.location.href = '/';
+      return;
+    }
+
+    return response;
+
+  } catch (error) {
+    console.error("Network error:", error);
+    throw error;
   }
 };
-
-/**
- * Optional: Helper to check if current user is Manager
- */
-export const isManager = () => getUserRole() === 'Manager';
-
-/**
- * Optional: Helper to check if user is authenticated
- */
-export const isAuthenticated = () => !!localStorage.getItem('token');

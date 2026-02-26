@@ -1,0 +1,218 @@
+/* --- DailyWorksheet.css --- */
+
+.worksheet-wizard {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    overflow: hidden;
+}
+
+/* Header & Live Pricing */
+.wizard-header {
+    background: #2c3e50;
+    color: white;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wizard-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.live-price-badge {
+    background: #27ae60;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Step Container Layout */
+.step-container {
+    flex: 1;
+    padding: 2rem;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.step-container h3 {
+    margin-top: 0;
+    color: #34495e;
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Step 1: Staff Selection Grid */
+.staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.selectable-card {
+    border: 2px solid #ecf0f1;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.selectable-card input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.selectable-card:hover {
+    border-color: #3498db;
+    background-color: #f7f9fc;
+}
+
+.selectable-card.selected {
+    border-color: #3498db;
+    background-color: #ebf5fb;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+}
+
+/* Step 2 & 5: Inputs & Forms */
+.main-input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1.1rem;
+}
+
+.vehicle-info-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-left: 5px solid #3498db;
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+
+/* Step 3: Service List */
+.service-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.service-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #ecf0f1;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.service-item span {
+    flex: 1;
+    margin-left: 1rem;
+}
+
+.price-tag {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+/* Step 4: Adjustments */
+.input-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-weight: bold;
+    color: #7f8c8d;
+}
+
+/* Step 6: Summary */
+.summary-box {
+    background: #fdfdfd;
+    border: 1px solid #ddd;
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.summary-box p {
+    margin: 0.75rem 0;
+    font-size: 1.05rem;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 0.5rem;
+}
+
+.final-total {
+    text-align: right;
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-top: 1.5rem;
+}
+
+/* Footer Navigation */
+.wizard-footer {
+    padding: 1.5rem 2rem;
+    background: #f9f9f9;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+}
+
+.nav-right {
+    display: flex;
+    gap: 10px;
+}
+
+/* Buttons */
+button {
+    padding: 10px 24px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-cancel { background: #e74c3c; color: white; }
+.btn-next { background: #3498db; color: white; }
+.btn-submit { background: #27ae60; color: white; padding: 10px 40px; }
+.btn-action { background: #34495e; color: white; margin-top: 10px; }
+
+.banner-info {
+    background: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    border: 1px solid #ffeeba;
+}

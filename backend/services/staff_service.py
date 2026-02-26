@@ -26,3 +26,11 @@ class StaffService:
         db.session.add(new_user)
         db.session.commit()
         return new_user
+    
+    @staticmethod
+    def list_active_staff():
+        """
+        Returns only active staff members.
+        Used by Daily Worksheet.
+        """
+        return User.query.filter_by(is_active=True).all()
