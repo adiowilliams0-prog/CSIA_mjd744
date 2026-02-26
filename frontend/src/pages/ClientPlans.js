@@ -329,6 +329,78 @@ const ClientPlans = () => {
         </div>
       )}
 
+      {/* ===============================
+          PLAN MODAL
+      ===============================*/}
+      {showPlanModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>{currentPlan ? "Edit Plan" : "Add New Plan"}</h2>
+
+            <form onSubmit={handlePlanSave}>
+
+              <input
+                type="text"
+                placeholder="Client Name"
+                required
+                value={planForm.client_name}
+                onChange={(e) =>
+                  setPlanForm({ ...planForm, client_name: e.target.value })
+                }
+              />
+
+              <input
+                type="email"
+                placeholder="Email"
+                value={planForm.email}
+                onChange={(e) =>
+                  setPlanForm({ ...planForm, email: e.target.value })
+                }
+              />
+
+              <input
+                type="text"
+                placeholder="Phone"
+                value={planForm.phone}
+                onChange={(e) =>
+                  setPlanForm({ ...planForm, phone: e.target.value })
+                }
+              />
+
+              <select
+                value={planForm.billing_cycle}
+                onChange={(e) =>
+                  setPlanForm({ ...planForm, billing_cycle: e.target.value })
+                }
+              >
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+
+              <div className="signature-container">
+                <SignatureCanvas
+                  ref={signatureRef}
+                  penColor="black"
+                  canvasProps={{ width: 300, height: 100, className: "sigCanvas" }}
+                />
+                <button type="button" onClick={() => signatureRef.current.clear()}>
+                  Clear Signature
+                </button>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" onClick={() => setShowPlanModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary">
+                  Save Plan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
